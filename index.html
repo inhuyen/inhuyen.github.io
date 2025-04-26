@@ -148,98 +148,168 @@
         </script>
     </div>
 
-    <!-- Game 2: Maze -->
-    <div id="maze" class="game-container">
-        <h2>Game Giải Mê Cung</h2>
-        <canvas id="gameCanvasMaze" width="400" height="400"></canvas>
-        <script>
-            // Game Giải Mê Cung
-            const canvasMaze = document.getElementById("gameCanvasMaze");
-            const ctxMaze = canvasMaze.getContext("2d");
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Tung Xúc Sắc</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        h1 {
+            font-size: 2.5rem;
+        }
+        button {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .game-container {
+            display: none;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(10, 50px);
+            grid-gap: 5px;
+            margin: 20px auto;
+            justify-content: center;
+        }
+        .square {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+        .player {
+            background-color: green;
+            color: white;
+            border-radius: 50%;
+        }
+        .trap {
+            background-color: red;
+            color: white;
+        }
+        .goal {
+            background-color: gold;
+            color: white;
+        }
+        .instructions {
+            font-size: 1.2rem;
+            margin-top: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Game Tung Xúc Sắc</h1>
+    <button onclick="startGame()">Chơi Game</button>
 
-            const mazeSize = 20;
-            const rows = 20;
-            const cols = 20;
-            const start = { x: 0, y: 0 };
-            const end = { x: 19, y: 19 };
-            let player = { x: 0, y: 0 };
-            const walls = [];
-            let gameOver = false;
-
-            const maze = [
-                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1],
-                [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1],
-                [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1],
-                [1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1],
-                [1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1],
-                [1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1],
-                [1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1],
-                [1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
-                [1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1],
-                [1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1],
-                [1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1],
-                [1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-                [1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1],
-                [1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1],
-                [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1],
-                [1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1],
-                [1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
-                [1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0],
-                [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1],
-                [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0]
-            ];
-
-            function drawMaze() {
-                ctxMaze.clearRect(0, 0, canvasMaze.width, canvasMaze.height);
-                for (let row = 0; row < rows; row++) {
-                    for (let col = 0; col < cols; col++) {
-                        if (maze[row][col] === 1) {
-                            ctxMaze.fillStyle = "black";
-                            ctxMaze.fillRect(col * mazeSize, row * mazeSize, mazeSize, mazeSize);
-                        }
-                    }
-                }
-                ctxMaze.fillStyle = "green";
-                ctxMaze.fillRect(player.x * mazeSize, player.y * mazeSize, mazeSize, mazeSize); // Vẽ người chơi
-            }
-
-            function movePlayer(event) {
-                if (gameOver) return;
-                if (event.key === "ArrowUp" && maze[player.y - 1][player.x] === 0) {
-                    player.y -= 1;
-                } else if (event.key === "ArrowDown" && maze[player.y + 1][player.x] === 0) {
-                    player.y += 1;
-                } else if (event.key === "ArrowLeft" && maze[player.y][player.x - 1] === 0) {
-                    player.x -= 1;
-                } else if (event.key === "ArrowRight" && maze[player.y][player.x + 1] === 0) {
-                    player.x += 1;
-                }
-
-                if (player.x === end.x && player.y === end.y) {
-                    gameOver = true;
-                    alert("Chúc mừng! Bạn đã giải mê cung!");
-                }
-
-                drawMaze();
-            }
-
-            document.addEventListener("keydown", movePlayer);
-
-            drawMaze();
-        </script>
+    <!-- Game Container -->
+    <div id="game" class="game-container">
+        <h2>Tung Xúc Sắc và Di Chuyển</h2>
+        <div class="instructions">
+            <p><strong>Hướng dẫn chơi:</strong></p>
+            <p>- Nhấn nút "Tung Xúc Sắc" để di chuyển về đích.</p>
+            <p>- Cạm bẫy sẽ làm bạn bị lùi lại hoặc mất lượt!</p>
+            <p>- Mục tiêu: Đến ô cuối cùng trước khi gặp bẫy.</p>
+        </div>
+        <div class="board" id="board"></div>
+        <button onclick="rollDice()">Tung Xúc Sắc</button>
+        <p id="rollResult"></p>
+        <p id="message"></p>
     </div>
 
     <script>
-        function startGame(game) {
-            // Ẩn tất cả các game
-            document.querySelectorAll('.game-container').forEach(function(gameContainer) {
-                gameContainer.style.display = 'none';
-            });
+        // Cấu hình game
+        const boardSize = 10; // Số ô trong bảng
+        const traps = [3, 5, 7]; // Các ô có bẫy (bẫy sẽ làm người chơi lùi lại 2 ô)
+        const goal = 9; // Ô đích
 
-            // Hiển thị game được chọn
-            document.getElementById(game).style.display = 'block';
+        let playerPosition = 0;
+        let gameOver = false;
+
+        // Tạo bàn cờ
+        function createBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            for (let i = 0; i < boardSize; i++) {
+                const square = document.createElement('div');
+                square.classList.add('square');
+                if (i === goal) {
+                    square.classList.add('goal');
+                    square.textContent = 'Đích';
+                }
+                if (traps.includes(i)) {
+                    square.classList.add('trap');
+                    square.textContent = 'Bẫy';
+                }
+                board.appendChild(square);
+            }
+        }
+
+        // Cập nhật vị trí người chơi
+        function updatePlayerPosition() {
+            const squares = document.querySelectorAll('.square');
+            squares.forEach(square => square.classList.remove('player'));
+
+            const playerSquare = squares[playerPosition];
+            playerSquare.classList.add('player');
+        }
+
+        // Kiểm tra game over
+        function checkGameOver() {
+            if (playerPosition === goal) {
+                document.getElementById('message').textContent = 'Chúc mừng! Bạn đã đến đích!';
+                gameOver = true;
+            } else if (playerPosition < 0) {
+                document.getElementById('message').textContent = 'Bạn đã thua! Quay lại và thử lại!';
+                gameOver = true;
+            }
+        }
+
+        // Tung xúc xắc
+        function rollDice() {
+            if (gameOver) return;
+            const diceRoll = Math.floor(Math.random() * 6) + 1;
+            document.getElementById('rollResult').textContent = `Bạn đã tung được số: ${diceRoll}`;
+
+            playerPosition += diceRoll;
+            if (playerPosition === goal) {
+                checkGameOver();
+            } else if (traps.includes(playerPosition)) {
+                document.getElementById('message').textContent = `Bạn đã rơi vào bẫy! Lùi lại 2 ô.`;
+                playerPosition -= 2;
+                if (playerPosition < 0) playerPosition = 0; // Đảm bảo không lùi quá ô đầu tiên
+            }
+            updatePlayerPosition();
+            checkGameOver();
+        }
+
+        // Khởi tạo game
+        function startGame() {
+            document.getElementById('game').style.display = 'block';
+            createBoard();
+            updatePlayerPosition();
+            document.getElementById('message').textContent = '';
+            document.getElementById('rollResult').textContent = '';
+            playerPosition = 0;
+            gameOver = false;
         }
     </script>
 </body>
