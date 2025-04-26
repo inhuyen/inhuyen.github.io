@@ -13,42 +13,46 @@
             height: 100vh;
             margin: 0;
             background-color: #f4f4f4;
+            flex-direction: column;
+            text-align: center;
         }
         canvas {
             border: 1px solid black;
             background-color: #e0e0e0;
         }
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+    <h1>Game Rắn Săn Mồi</h1>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <button id="startBtn">Bắt Đầu</button>
 
     <script>
-        // Lấy canvas và context
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
+        const startBtn = document.getElementById("startBtn");
 
-        // Kích thước của các ô trong game
         const snakeSize = 10;
-        let snake = [{ x: 150, y: 150 }];
-        let snakeDirection = "RIGHT";
-        let food = spawnFood();
-        let score = 0;
+        let snake;
+        let snakeDirection;
+        let food;
+        let score;
 
-        // Điều khiển rắn
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "ArrowUp" && snakeDirection !== "DOWN") {
-                snakeDirection = "UP";
-            } else if (event.key === "ArrowDown" && snakeDirection !== "UP") {
-                snakeDirection = "DOWN";
-            } else if (event.key === "ArrowLeft" && snakeDirection !== "RIGHT") {
-                snakeDirection = "LEFT";
-            } else if (event.key === "ArrowRight" && snakeDirection !== "LEFT") {
-                snakeDirection = "RIGHT";
-            }
-        });
+        let gameStarted = false;
 
-        // Vẽ rắn lên canvas
+        function initializeGame() {
+            snake = [{ x: 150, y: 150 }];
+            snakeDirection = "RIGHT";
+            food = spawnFood();
+            score = 0;
+        }
+
         function drawSnake() {
             for (let i = 0; i < snake.length; i++) {
                 ctx.fillStyle = i === 0 ? "green" : "black";  // Đầu rắn màu xanh, thân màu đen
@@ -56,13 +60,11 @@
             }
         }
 
-        // Vẽ thức ăn lên canvas
         function drawFood() {
             ctx.fillStyle = "red";
             ctx.fillRect(food.x, food.y, snakeSize, snakeSize);
         }
 
-        // Di chuyển rắn
         function moveSnake() {
             const head = { ...snake[0] };
 
@@ -80,14 +82,12 @@
             }
         }
 
-        // Sinh thức ăn ngẫu nhiên
         function spawnFood() {
             const foodX = Math.floor(Math.random() * (canvas.width / snakeSize)) * snakeSize;
             const foodY = Math.floor(Math.random() * (canvas.height / snakeSize)) * snakeSize;
             return { x: foodX, y: foodY };
         }
 
-        // Kiểm tra va chạm với tường hoặc thân rắn
         function checkCollisions() {
             const head = snake[0];
             if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
@@ -101,20 +101,18 @@
             return false;
         }
 
-        // Vẽ điểm số
         function drawScore() {
             ctx.fillStyle = "black";
             ctx.font = "20px Arial";
             ctx.fillText("Điểm: " + score, 10, 20);
         }
 
-        // Hàm game loop
         function gameLoop() {
             if (checkCollisions()) {
                 alert("Game Over! Điểm của bạn: " + score);
-                snake = [{ x: 150, y: 150 }];
-                snakeDirection = "RIGHT";
-                score = 0;
+                gameStarted = false;
+                startBtn.style.display = "block"; // Hiển thị nút Bắt đầu
+                return;
             }
 
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa màn hình
@@ -123,10 +121,32 @@
             drawScore();
             moveSnake();
 
-            setTimeout(gameLoop, 100); // Tiếp tục vòng lặp mỗi 100ms
+            if (gameStarted) {
+                setTimeout(gameLoop, 100); // Tiếp tục vòng lặp mỗi 100ms
+            }
         }
 
-        gameLoop(); // Bắt đầu game
+        document.addEventListener("keydown", (event) => {
+            if (!gameStarted) return;
+
+            if (event.key === "ArrowUp" && snakeDirection !== "DOWN") {
+                snakeDirection = "UP";
+            } else if (event.key === "ArrowDown" && snakeDirection !== "UP") {
+                snakeDirection = "DOWN";
+            } else if (event.key === "ArrowLeft" && snakeDirection !== "RIGHT") {
+                snakeDirection = "LEFT";
+            } else if (event.key === "ArrowRight" && snakeDirection !== "LEFT") {
+                snakeDirection = "RIGHT";
+            }
+        });
+
+        startBtn.addEventListener("click", () => {
+            startBtn.style.display = "none"; // Ẩn nút bắt đầu
+            gameStarted = true;
+            initializeGame();
+            gameLoop();
+        });
+
     </script>
 </body>
 </html>
