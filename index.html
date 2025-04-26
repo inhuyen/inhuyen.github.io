@@ -3,157 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Mê Cung và Rắn</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-        h1 {
-            font-size: 2.5rem;
-        }
-        button {
-            font-size: 1.2rem;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .game-container {
-            display: none;
-        }
-        canvas {
-            border: 1px solid #ccc;
-            background-color: #f4f4f4;
-        }
-    </style>
-</head>
-<body>
-    <h1>Game Collection</h1>
-    <button onclick="startGame('snake')">Chơi Game Rắn Săn Mồi</button>
-    <button onclick="startGame('maze')">Chơi Game Giải Mê Cung</button>
-
-    <!-- Game 1: Snake -->
-    <div id="snake" class="game-container">
-        <h2>Game Rắn Săn Mồi</h2>
-        <canvas id="gameCanvasSnake" width="400" height="400"></canvas>
-        <script>
-            // Game Rắn Săn Mồi
-            const canvasSnake = document.getElementById("gameCanvasSnake");
-            const ctxSnake = canvasSnake.getContext("2d");
-
-            const snakeSize = 10;
-            let snake;
-            let snakeDirection;
-            let food;
-            let score;
-
-            function initializeGameSnake() {
-                snake = [{ x: 150, y: 150 }];
-                snakeDirection = "RIGHT";
-                food = spawnFood();
-                score = 0;
-            }
-
-            function drawSnake() {
-                for (let i = 0; i < snake.length; i++) {
-                    ctxSnake.fillStyle = i === 0 ? "green" : "black"; 
-                    ctxSnake.fillRect(snake[i].x, snake[i].y, snakeSize, snakeSize);
-                }
-            }
-
-            function drawFood() {
-                ctxSnake.fillStyle = "red";
-                ctxSnake.fillRect(food.x, food.y, snakeSize, snakeSize);
-            }
-
-            function moveSnake() {
-                const head = { ...snake[0] };
-
-                if (snakeDirection === "UP") head.y -= snakeSize;
-                else if (snakeDirection === "DOWN") head.y += snakeSize;
-                else if (snakeDirection === "LEFT") head.x -= snakeSize;
-                else if (snakeDirection === "RIGHT") head.x += snakeSize;
-
-                snake.unshift(head);
-                if (head.x === food.x && head.y === food.y) {
-                    score += 10;
-                    food = spawnFood();
-                } else {
-                    snake.pop();
-                }
-            }
-
-            function spawnFood() {
-                const foodX = Math.floor(Math.random() * (canvasSnake.width / snakeSize)) * snakeSize;
-                const foodY = Math.floor(Math.random() * (canvasSnake.height / snakeSize)) * snakeSize;
-                return { x: foodX, y: foodY };
-            }
-
-            function checkCollisions() {
-                const head = snake[0];
-                if (head.x < 0 || head.x >= canvasSnake.width || head.y < 0 || head.y >= canvasSnake.height) {
-                    return true; 
-                }
-                for (let i = 1; i < snake.length; i++) {
-                    if (head.x === snake[i].x && head.y === snake[i].y) {
-                        return true; 
-                    }
-                }
-                return false;
-            }
-
-            function drawScore() {
-                ctxSnake.fillStyle = "black";
-                ctxSnake.font = "20px Arial";
-                ctxSnake.fillText("Điểm: " + score, 10, 20);
-            }
-
-            function gameLoopSnake() {
-                if (checkCollisions()) {
-                    alert("Game Over! Điểm của bạn: " + score);
-                    window.location.reload();
-                    return;
-                }
-
-                ctxSnake.clearRect(0, 0, canvasSnake.width, canvasSnake.height); 
-                drawSnake();
-                drawFood();
-                drawScore();
-                moveSnake();
-
-                setTimeout(gameLoopSnake, 100); 
-            }
-
-            document.addEventListener("keydown", (event) => {
-                if (event.key === "ArrowUp" && snakeDirection !== "DOWN") {
-                    snakeDirection = "UP";
-                } else if (event.key === "ArrowDown" && snakeDirection !== "UP") {
-                    snakeDirection = "DOWN";
-                } else if (event.key === "ArrowLeft" && snakeDirection !== "RIGHT") {
-                    snakeDirection = "LEFT";
-                } else if (event.key === "ArrowRight" && snakeDirection !== "LEFT") {
-                    snakeDirection = "RIGHT";
-                }
-            });
-
-            initializeGameSnake();
-            gameLoopSnake();
-        </script>
-    </div>
-
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Tung Xúc Sắc</title>
+    <title>Game Rắn Săn Mồi & Tung Xúc Sắc</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -180,14 +30,14 @@
         }
         .board {
             display: grid;
-            grid-template-columns: repeat(10, 50px);
+            grid-template-columns: repeat(15, 40px); /* Bảng rộng hơn với 15 cột */
             grid-gap: 5px;
             margin: 20px auto;
             justify-content: center;
         }
         .square {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -214,15 +64,50 @@
             color: #333;
             font-weight: bold;
         }
+        .snake-board {
+            display: grid;
+            grid-template-columns: repeat(10, 40px); /* Map 10x10 cho game rắn */
+            grid-gap: 2px;
+            margin-top: 20px;
+        }
+        .snake-cell {
+            width: 40px;
+            height: 40px;
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+        }
+        .snake-body {
+            background-color: green;
+        }
+        .snake-head {
+            background-color: darkgreen;
+        }
+        .food {
+            background-color: red;
+        }
     </style>
 </head>
 <body>
-    <h1>Game Tung Xúc Sắc</h1>
-    <button onclick="startGame()">Chơi Game</button>
+    <h1>Game Rắn Săn Mồi & Tung Xúc Sắc</h1>
+    <button onclick="startSnakeGame()">Chơi Game Rắn Săn Mồi</button>
+    <button onclick="startDiceGame()">Chơi Game Tung Xúc Sắc</button>
 
-    <!-- Game Container -->
-    <div id="game" class="game-container">
-        <h2>Tung Xúc Sắc và Di Chuyển</h2>
+    <!-- Game Snake -->
+    <div id="snakeGame" class="game-container">
+        <h2>Game Rắn Săn Mồi</h2>
+        <div class="snake-board" id="snakeBoard"></div>
+        <p id="snakeMessage"></p>
+        <p id="snakeScore">Điểm: 0</p>
+        <button onclick="moveSnake('up')">Lên</button>
+        <button onclick="moveSnake('down')">Xuống</button>
+        <button onclick="moveSnake('left')">Trái</button>
+        <button onclick="moveSnake('right')">Phải</button>
+        <button onclick="resetSnakeGame()">Làm Mới</button>
+    </div>
+
+    <!-- Game Dice -->
+    <div id="diceGame" class="game-container">
+        <h2>Tung Xúc Sắc và Di Chuyển về Đích</h2>
         <div class="instructions">
             <p><strong>Hướng dẫn chơi:</strong></p>
             <p>- Nhấn nút "Tung Xúc Sắc" để di chuyển về đích.</p>
@@ -236,19 +121,114 @@
     </div>
 
     <script>
-        // Cấu hình game
-        const boardSize = 10; // Số ô trong bảng
-        const traps = [3, 5, 7]; // Các ô có bẫy (bẫy sẽ làm người chơi lùi lại 2 ô)
-        const goal = 9; // Ô đích
+        // ============================
+        // Game Rắn Săn Mồi
+        // ============================
 
+        const snakeBoardSize = 10;
+        let snake = [{ x: 4, y: 4 }];
+        let food = { x: 6, y: 6 };
+        let score = 0;
+        let direction = 'right';
+        let gameInterval;
+
+        function createSnakeBoard() {
+            const board = document.getElementById('snakeBoard');
+            board.innerHTML = '';
+            for (let i = 0; i < snakeBoardSize; i++) {
+                for (let j = 0; j < snakeBoardSize; j++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('snake-cell');
+                    board.appendChild(cell);
+                }
+            }
+            updateSnake();
+        }
+
+        function updateSnake() {
+            const board = document.getElementById('snakeBoard');
+            const cells = board.getElementsByClassName('snake-cell');
+            for (let i = 0; i < snakeBoardSize * snakeBoardSize; i++) {
+                cells[i].classList.remove('snake-head', 'snake-body', 'food');
+            }
+            const snakeHead = snake[0];
+            const snakeTail = snake[snake.length - 1];
+            cells[snakeHead.y * snakeBoardSize + snakeHead.x].classList.add('snake-head');
+            for (let i = 1; i < snake.length; i++) {
+                cells[snake[i].y * snakeBoardSize + snake[i].x].classList.add('snake-body');
+            }
+            cells[food.y * snakeBoardSize + food.x].classList.add('food');
+        }
+
+        function moveSnake() {
+            const head = { ...snake[0] };
+            if (direction === 'up') head.y--;
+            if (direction === 'down') head.y++;
+            if (direction === 'left') head.x--;
+            if (direction === 'right') head.x++;
+
+            if (head.x < 0 || head.x >= snakeBoardSize || head.y < 0 || head.y >= snakeBoardSize || isCollision(head)) {
+                clearInterval(gameInterval);
+                document.getElementById('snakeMessage').textContent = 'Game Over!';
+                return;
+            }
+
+            snake.unshift(head);
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                food = { x: Math.floor(Math.random() * snakeBoardSize), y: Math.floor(Math.random() * snakeBoardSize) };
+                document.getElementById('snakeScore').textContent = `Điểm: ${score}`;
+            } else {
+                snake.pop();
+            }
+
+            updateSnake();
+        }
+
+        function isCollision(head) {
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function moveSnake(directionKey) {
+            direction = directionKey;
+        }
+
+        function startSnakeGame() {
+            document.getElementById('snakeGame').style.display = 'block';
+            document.getElementById('diceGame').style.display = 'none';
+            createSnakeBoard();
+            score = 0;
+            snake = [{ x: 4, y: 4 }];
+            food = { x: 6, y: 6 };
+            document.getElementById('snakeScore').textContent = `Điểm: ${score}`;
+            document.getElementById('snakeMessage').textContent = '';
+            gameInterval = setInterval(moveSnake, 200);
+        }
+
+        function resetSnakeGame() {
+            clearInterval(gameInterval);
+            startSnakeGame();
+        }
+
+        // ============================
+        // Game Tung Xúc Sắc
+        // ============================
+
+        const boardSize = 15; // 15x15 map
+        const traps = [10, 15, 20, 25, 30, 35];
+        const goal = 224; // Ô cuối của bản đồ
         let playerPosition = 0;
         let gameOver = false;
 
-        // Tạo bàn cờ
         function createBoard() {
             const board = document.getElementById('board');
             board.innerHTML = '';
-            for (let i = 0; i < boardSize; i++) {
+            for (let i = 0; i < boardSize * boardSize; i++) {
                 const square = document.createElement('div');
                 square.classList.add('square');
                 if (i === goal) {
@@ -263,16 +243,13 @@
             }
         }
 
-        // Cập nhật vị trí người chơi
         function updatePlayerPosition() {
             const squares = document.querySelectorAll('.square');
             squares.forEach(square => square.classList.remove('player'));
-
             const playerSquare = squares[playerPosition];
             playerSquare.classList.add('player');
         }
 
-        // Kiểm tra game over
         function checkGameOver() {
             if (playerPosition === goal) {
                 document.getElementById('message').textContent = 'Chúc mừng! Bạn đã đến đích!';
@@ -283,7 +260,6 @@
             }
         }
 
-        // Tung xúc xắc
         function rollDice() {
             if (gameOver) return;
             const diceRoll = Math.floor(Math.random() * 6) + 1;
@@ -295,15 +271,15 @@
             } else if (traps.includes(playerPosition)) {
                 document.getElementById('message').textContent = `Bạn đã rơi vào bẫy! Lùi lại 2 ô.`;
                 playerPosition -= 2;
-                if (playerPosition < 0) playerPosition = 0; // Đảm bảo không lùi quá ô đầu tiên
+                if (playerPosition < 0) playerPosition = 0; 
             }
             updatePlayerPosition();
             checkGameOver();
         }
 
-        // Khởi tạo game
-        function startGame() {
-            document.getElementById('game').style.display = 'block';
+        function startDiceGame() {
+            document.getElementById('diceGame').style.display = 'block';
+            document.getElementById('snakeGame').style.display = 'none';
             createBoard();
             updatePlayerPosition();
             document.getElementById('message').textContent = '';
