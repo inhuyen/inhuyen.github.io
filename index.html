@@ -1,127 +1,132 @@
-import pygame
-import time
-import random
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Rắn Săn Mồi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        canvas {
+            border: 1px solid black;
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-# Khởi tạo pygame
-pygame.init()
+    <script>
+        // Lấy canvas và context
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
 
-# Màu sắc
-white = (255, 255, 255)
-black = (0, 0, 0)
-red   = (213, 50, 80)
-green = (0, 255, 0)
-blue  = (50, 153, 213)
+        // Kích thước của các ô trong game
+        const snakeSize = 10;
+        let snake = [{ x: 150, y: 150 }];
+        let snakeDirection = "RIGHT";
+        let food = spawnFood();
+        let score = 0;
 
-# Kích thước màn hình
-width, height = 600, 400
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption('🐍 Rắn săn mồi')
+        // Điều khiển rắn
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowUp" && snakeDirection !== "DOWN") {
+                snakeDirection = "UP";
+            } else if (event.key === "ArrowDown" && snakeDirection !== "UP") {
+                snakeDirection = "DOWN";
+            } else if (event.key === "ArrowLeft" && snakeDirection !== "RIGHT") {
+                snakeDirection = "LEFT";
+            } else if (event.key === "ArrowRight" && snakeDirection !== "LEFT") {
+                snakeDirection = "RIGHT";
+            }
+        });
 
-# Clock và font
-clock = pygame.time.Clock()
-snake_block = 10
-snake_speed = 15
-font_style = pygame.font.SysFont("bahnschrift", 25)
-score_font = pygame.font.SysFont("comicsansms", 25)
+        // Vẽ rắn lên canvas
+        function drawSnake() {
+            for (let i = 0; i < snake.length; i++) {
+                ctx.fillStyle = i === 0 ? "green" : "black";  // Đầu rắn màu xanh, thân màu đen
+                ctx.fillRect(snake[i].x, snake[i].y, snakeSize, snakeSize);
+            }
+        }
 
-# Hiển thị điểm
-def Your_score(score):
-    value = score_font.render("Điểm: " + str(score), True, black)
-    screen.blit(value, [0, 0])
+        // Vẽ thức ăn lên canvas
+        function drawFood() {
+            ctx.fillStyle = "red";
+            ctx.fillRect(food.x, food.y, snakeSize, snakeSize);
+        }
 
-# Vẽ rắn
-def draw_snake(snake_block, snake_list):
-    for x in snake_list:
-        pygame.draw.rect(screen, black, [x[0], x[1], snake_block, snake_block])
+        // Di chuyển rắn
+        function moveSnake() {
+            const head = { ...snake[0] };
 
-# Thông báo
-def message(msg, color):
-    mesg = font_style.render(msg, True, color)
-    screen.blit(mesg, [width / 6, height / 3])
+            if (snakeDirection === "UP") head.y -= snakeSize;
+            else if (snakeDirection === "DOWN") head.y += snakeSize;
+            else if (snakeDirection === "LEFT") head.x -= snakeSize;
+            else if (snakeDirection === "RIGHT") head.x += snakeSize;
 
-# Vòng lặp chính
-def gameLoop():
-    game_over = False
-    game_close = False
+            snake.unshift(head);
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                food = spawnFood();
+            } else {
+                snake.pop();
+            }
+        }
 
-    x = width / 2
-    y = height / 2
-    dx = 0
-    dy = 0
+        // Sinh thức ăn ngẫu nhiên
+        function spawnFood() {
+            const foodX = Math.floor(Math.random() * (canvas.width / snakeSize)) * snakeSize;
+            const foodY = Math.floor(Math.random() * (canvas.height / snakeSize)) * snakeSize;
+            return { x: foodX, y: foodY };
+        }
 
-    snake_List = []
-    Length = 1
+        // Kiểm tra va chạm với tường hoặc thân rắn
+        function checkCollisions() {
+            const head = snake[0];
+            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+                return true; // Va chạm với tường
+            }
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    return true; // Va chạm với thân
+                }
+            }
+            return false;
+        }
 
-    foodx = round(random.randrange(0, width - snake_block) / 10.0) * 10.0
-    foody = round(random.randrange(0, height - snake_block) / 10.0) * 10.0
+        // Vẽ điểm số
+        function drawScore() {
+            ctx.fillStyle = "black";
+            ctx.font = "20px Arial";
+            ctx.fillText("Điểm: " + score, 10, 20);
+        }
 
-    while not game_over:
+        // Hàm game loop
+        function gameLoop() {
+            if (checkCollisions()) {
+                alert("Game Over! Điểm của bạn: " + score);
+                snake = [{ x: 150, y: 150 }];
+                snakeDirection = "RIGHT";
+                score = 0;
+            }
 
-        while game_close:
-            screen.fill(blue)
-            message("Thua rồi! Nhấn C để chơi lại hoặc Q để thoát", red)
-            Your_score(Length - 1)
-            pygame.display.update()
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa màn hình
+            drawSnake();
+            drawFood();
+            drawScore();
+            moveSnake();
 
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        game_over = True
-                        game_close = False
-                    if event.key == pygame.K_c:
-                        gameLoop()
+            setTimeout(gameLoop, 100); // Tiếp tục vòng lặp mỗi 100ms
+        }
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                game_over = True
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    dx = -snake_block
-                    dy = 0
-                elif event.key == pygame.K_RIGHT:
-                    dx = snake_block
-                    dy = 0
-                elif event.key == pygame.K_UP:
-                    dy = -snake_block
-                    dx = 0
-                elif event.key == pygame.K_DOWN:
-                    dy = snake_block
-                    dx = 0
-
-        # Va chạm với tường
-        if x >= width or x < 0 or y >= height or y < 0:
-            game_close = True
-
-        x += dx
-        y += dy
-        screen.fill(blue)
-        pygame.draw.rect(screen, green, [foodx, foody, snake_block, snake_block])
-        snake_Head = [x, y]
-        snake_List.append(snake_Head)
-
-        if len(snake_List) > Length:
-            del snake_List[0]
-
-        # Va chạm với chính mình
-        for segment in snake_List[:-1]:
-            if segment == snake_Head:
-                game_close = True
-
-        draw_snake(snake_block, snake_List)
-        Your_score(Length - 1)
-
-        pygame.display.update()
-
-        # Ăn mồi
-        if x == foodx and y == foody:
-            foodx = round(random.randrange(0, width - snake_block) / 10.0) * 10.0
-            foody = round(random.randrange(0, height - snake_block) / 10.0) * 10.0
-            Length += 1
-
-        clock.tick(snake_speed)
-
-    pygame.quit()
-    quit()
-
-# Bắt đầu game
-gameLoop()
+        gameLoop(); // Bắt đầu game
+    </script>
+</body>
+</html>
