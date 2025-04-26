@@ -3,150 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Rắn Săn Mồi</title>
+    <title>Game Collection</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f4f4f4;
-            flex-direction: column;
             text-align: center;
+            margin-top: 50px;
         }
-        canvas {
-            border: 1px solid black;
-            background-color: #e0e0e0;
+        h1 {
+            font-size: 2.5rem;
         }
         button {
-            font-size: 20px;
+            font-size: 1.2rem;
             padding: 10px 20px;
-            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
             cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .game-container {
+            display: none;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            background-color: #f4f4f4;
         }
     </style>
 </head>
 <body>
-    <h1>Game Rắn Săn Mồi</h1>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
-    <button id="startBtn">Bắt Đầu</button>
+    <h1>Game Collection</h1>
+    <button onclick="startGame('snake')">Chơi Game Rắn Săn Mồi</button>
+    <button onclick="startGame('maze')">Chơi Game Giải Mê Cung</button>
 
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const startBtn = document.getElementById("startBtn");
+    <!-- Game 1: Snake -->
+    <div id="snake" class="game-container">
+        <h2>Game Rắn Săn Mồi</h2>
+        <canvas id="gameCanvasSnake" width="400" height="400"></canvas>
+        <script>
+            // Game Rắn Săn Mồi
+            const canvasSnake = document.getElementById("gameCanvasSnake");
+            const ctxSnake = canvasSnake.getContext("2d");
 
-        const snakeSize = 10;
-        let snake;
-        let snakeDirection;
-        let food;
-        let score;
+            const snakeSize = 10;
+            let snake;
+            let snakeDirection;
+            let food;
+            let score;
 
-        let gameStarted = false;
-
-        function initializeGame() {
-            snake = [{ x: 150, y: 150 }];
-            snakeDirection = "RIGHT";
-            food = spawnFood();
-            score = 0;
-        }
-
-        function drawSnake() {
-            for (let i = 0; i < snake.length; i++) {
-                ctx.fillStyle = i === 0 ? "green" : "black";  // Đầu rắn màu xanh, thân màu đen
-                ctx.fillRect(snake[i].x, snake[i].y, snakeSize, snakeSize);
-            }
-        }
-
-        function drawFood() {
-            ctx.fillStyle = "red";
-            ctx.fillRect(food.x, food.y, snakeSize, snakeSize);
-        }
-
-        function moveSnake() {
-            const head = { ...snake[0] };
-
-            if (snakeDirection === "UP") head.y -= snakeSize;
-            else if (snakeDirection === "DOWN") head.y += snakeSize;
-            else if (snakeDirection === "LEFT") head.x -= snakeSize;
-            else if (snakeDirection === "RIGHT") head.x += snakeSize;
-
-            snake.unshift(head);
-            if (head.x === food.x && head.y === food.y) {
-                score += 10;
+            function initializeGameSnake() {
+                snake = [{ x: 150, y: 150 }];
+                snakeDirection = "RIGHT";
                 food = spawnFood();
-            } else {
-                snake.pop();
+                score = 0;
             }
-        }
 
-        function spawnFood() {
-            const foodX = Math.floor(Math.random() * (canvas.width / snakeSize)) * snakeSize;
-            const foodY = Math.floor(Math.random() * (canvas.height / snakeSize)) * snakeSize;
-            return { x: foodX, y: foodY };
-        }
-
-        function checkCollisions() {
-            const head = snake[0];
-            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
-                return true; // Va chạm với tường
-            }
-            for (let i = 1; i < snake.length; i++) {
-                if (head.x === snake[i].x && head.y === snake[i].y) {
-                    return true; // Va chạm với thân
+            function drawSnake() {
+                for (let i = 0; i < snake.length; i++) {
+                    ctxSnake.fillStyle = i === 0 ? "green" : "black"; 
+                    ctxSnake.fillRect(snake[i].x, snake[i].y, snakeSize, snakeSize);
                 }
             }
-            return false;
-        }
 
-        function drawScore() {
-            ctx.fillStyle = "black";
-            ctx.font = "20px Arial";
-            ctx.fillText("Điểm: " + score, 10, 20);
-        }
-
-        function gameLoop() {
-            if (checkCollisions()) {
-                alert("Game Over! Điểm của bạn: " + score);
-                gameStarted = false;
-                startBtn.style.display = "block"; // Hiển thị nút Bắt đầu
-                return;
+            function drawFood() {
+                ctxSnake.fillStyle = "red";
+                ctxSnake.fillRect(food.x, food.y, snakeSize, snakeSize);
             }
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa màn hình
-            drawSnake();
-            drawFood();
-            drawScore();
-            moveSnake();
+            function moveSnake() {
+                const head = { ...snake[0] };
 
-            if (gameStarted) {
-                setTimeout(gameLoop, 100); // Tiếp tục vòng lặp mỗi 100ms
+                if (snakeDirection === "UP") head.y -= snakeSize;
+                else if (snakeDirection === "DOWN") head.y += snakeSize;
+                else if (snakeDirection === "LEFT") head.x -= snakeSize;
+                else if (snakeDirection === "RIGHT") head.x += snakeSize;
+
+                snake.unshift(head);
+                if (head.x === food.x && head.y === food.y) {
+                    score += 10;
+                    food = spawnFood();
+                } else {
+                    snake.pop();
+                }
             }
+
+            function spawnFood() {
+                const foodX = Math.floor(Math.random() * (canvasSnake.width / snakeSize)) * snakeSize;
+                const foodY = Math.floor(Math.random() * (canvasSnake.height / snakeSize)) * snakeSize;
+                return { x: foodX, y: foodY };
+            }
+
+            function checkCollisions() {
+                const head = snake[0];
+                if (head.x < 0 || head.x >= canvasSnake.width || head.y < 0 || head.y >= canvasSnake.height) {
+                    return true; 
+                }
+                for (let i = 1; i < snake.length; i++) {
+                    if (head.x === snake[i].x && head.y === snake[i].y) {
+                        return true; 
+                    }
+                }
+                return false;
+            }
+
+            function drawScore() {
+                ctxSnake.fillStyle = "black";
+                ctxSnake.font = "20px Arial";
+                ctxSnake.fillText("Điểm: " + score, 10, 20);
+            }
+
+            function gameLoopSnake() {
+                if (checkCollisions()) {
+                    alert("Game Over! Điểm của bạn: " + score);
+                    window.location.reload();
+                    return;
+                }
+
+                ctxSnake.clearRect(0, 0, canvasSnake.width, canvasSnake.height); 
+                drawSnake();
+                drawFood();
+                drawScore();
+                moveSnake();
+
+                setTimeout(gameLoopSnake, 100); 
+            }
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "ArrowUp" && snakeDirection !== "DOWN") {
+                    snakeDirection = "UP";
+                } else if (event.key === "ArrowDown" && snakeDirection !== "UP") {
+                    snakeDirection = "DOWN";
+                } else if (event.key === "ArrowLeft" && snakeDirection !== "RIGHT") {
+                    snakeDirection = "LEFT";
+                } else if (event.key === "ArrowRight" && snakeDirection !== "LEFT") {
+                    snakeDirection = "RIGHT";
+                }
+            });
+
+            initializeGameSnake();
+            gameLoopSnake();
+        </script>
+    </div>
+
+    <!-- Game 2: Maze -->
+    <div id="maze" class="game-container">
+        <h2>Game Giải Mê Cung</h2>
+        <canvas id="gameCanvasMaze" width="400" height="400"></canvas>
+        <script>
+            // Game Giải Mê Cung
+            const canvasMaze = document.getElementById("gameCanvasMaze");
+            const ctxMaze = canvasMaze.getContext("2d");
+
+            const mazeSize = 20;
+            const rows = 20;
+            const cols = 20;
+            const start = { x: 0, y: 0 };
+            const end = { x: 19, y: 19 };
+            let player = { x: 0, y: 0 };
+            const walls = [];
+            let gameOver = false;
+
+            const maze = [
+                // Mảng 2D đại diện mê cung, 1 là tường, 0 là đường đi
+                // 1 = tường, 0 = đường đi
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1],
+                [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1],
+                [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1],
+                [1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+                [1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1],
+                [1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1],
+                [1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1],
+                [1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
+                [1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1],
+                [1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1],
+                [1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1],
+                [1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+                [1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1],
+                [1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1],
+                [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1],
+                [1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1],
+                [1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
+                [1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0],
+                [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1],
+                [1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0]
+            ];
+
+            function drawMaze() {
+                ctxMaze.clearRect(0, 0, canvasMaze.width, canvasMaze.height);
+                for (let row = 0; row < rows; row++) {
+                    for (let col = 0; col < cols; col++) {
+                        if (maze[row][col] === 1) {
+                            ctxMaze.fillStyle = "black";
+                            ctxMaze.fillRect(col * mazeSize, row * mazeSize, mazeSize, mazeSize);
+                        }
+                    }
+                }
+                ctxMaze.fillStyle = "green";
+                ctxMaze.fillRect(player.x * mazeSize, player.y * mazeSize, mazeSize, mazeSize); // Vẽ người chơi
+            }
+
+            function movePlayer(event) {
+                if (gameOver) return;
+                if (event.key === "ArrowUp" && maze[player.y - 1][player.x] === 0) {
+                    player.y -= 1;
+                } else if (event.key === "ArrowDown" && maze[player.y + 1][player.x] === 0) {
+                    player.y += 1;
+                } else if (event.key === "ArrowLeft" && maze[player.y][player.x - 1] === 0) {
+                    player.x -= 1;
+                } else if (event.key === "ArrowRight" && maze[player.y][player.x + 1] === 0) {
+                    player.x += 1;
+                }
+
+                if (player.x === end.x && player.y === end.y) {
+                    gameOver = true;
+                    alert("Chúc mừng! Bạn đã giải mê cung!");
+                }
+
+                drawMaze();
+            }
+
+            document.addEventListener("keydown", movePlayer);
+
+            drawMaze();
+        </script>
+    </div>
+
+    <script>
+        function startGame(game) {
+            // Ẩn tất cả các game
+            document.querySelectorAll('.game-container').forEach(function(gameContainer) {
+                gameContainer.style.display = 'none';
+            });
+
+            // Hiển thị game được chọn
+            document.getElementById(game).style.display = 'block';
         }
-
-        document.addEventListener("keydown", (event) => {
-            if (!gameStarted) return;
-
-            if (event.key === "ArrowUp" && snakeDirection !== "DOWN") {
-                snakeDirection = "UP";
-            } else if (event.key === "ArrowDown" && snakeDirection !== "UP") {
-                snakeDirection = "DOWN";
-            } else if (event.key === "ArrowLeft" && snakeDirection !== "RIGHT") {
-                snakeDirection = "LEFT";
-            } else if (event.key === "ArrowRight" && snakeDirection !== "LEFT") {
-                snakeDirection = "RIGHT";
-            }
-        });
-
-        startBtn.addEventListener("click", () => {
-            startBtn.style.display = "none"; // Ẩn nút bắt đầu
-            gameStarted = true;
-            initializeGame();
-            gameLoop();
-        });
-
     </script>
 </body>
 </html>
