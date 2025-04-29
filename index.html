@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Snake Game</title>
+  <title>Snake Game with Maze</title>
   <style>
     body {
       text-align: center;
@@ -18,7 +18,7 @@
   </style>
 </head>
 <body>
-  <h1>🐍 Snake Game</h1>
+  <h1>🐍 Snake Maze Game</h1>
   <canvas id="gameCanvas" width="400" height="400"></canvas>
   <script>
     const canvas = document.getElementById("gameCanvas");
@@ -26,16 +26,26 @@
     const box = 20;
     let score = 0;
 
-    let snake = [
-      { x: 9 * box, y: 10 * box }
-    ];
-
+    let snake = [{ x: 9 * box, y: 10 * box }];
     let food = {
       x: Math.floor(Math.random() * 20) * box,
       y: Math.floor(Math.random() * 20) * box
     };
 
     let direction = "";
+
+    // Mê cung - chướng ngại vật
+    const obstacles = [
+      { x: 5 * box, y: 5 * box },
+      { x: 6 * box, y: 5 * box },
+      { x: 7 * box, y: 5 * box },
+      { x: 12 * box, y: 10 * box },
+      { x: 12 * box, y: 11 * box },
+      { x: 12 * box, y: 12 * box },
+      { x: 3 * box, y: 15 * box },
+      { x: 4 * box, y: 15 * box },
+      { x: 5 * box, y: 15 * box }
+    ];
 
     document.addEventListener("keydown", event => {
       if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
@@ -47,7 +57,13 @@
     function drawGame() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Vẽ con rắn
+      // Vẽ chướng ngại vật
+      ctx.fillStyle = "gray";
+      for (let obs of obstacles) {
+        ctx.fillRect(obs.x, obs.y, box, box);
+      }
+
+      // Vẽ rắn
       for (let i = 0; i < snake.length; i++) {
         ctx.fillStyle = i === 0 ? "lime" : "green";
         ctx.fillRect(snake[i].x, snake[i].y, box, box);
@@ -57,23 +73,22 @@
       ctx.fillStyle = "red";
       ctx.fillRect(food.x, food.y, box, box);
 
-      // Di chuyển đầu rắn
+      // Di chuyển rắn
       let headX = snake[0].x;
       let headY = snake[0].y;
-
       if (direction === "LEFT") headX -= box;
       if (direction === "RIGHT") headX += box;
       if (direction === "UP") headY -= box;
       if (direction === "DOWN") headY += box;
 
-      // Kiểm tra va chạm với tường hoặc thân
-      if (
-        headX < 0 || headX >= canvas.width ||
-        headY < 0 || headY >= canvas.height ||
-        snake.some((part, index) => index !== 0 && part.x === headX && part.y === headY)
-      ) {
+      // Kiểm tra va chạm với tường, thân, hoặc mê cung
+      const hitWall = headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height;
+      const hitSelf = snake.slice(1).some(part => part.x === headX && part.y === headY);
+      const hitObstacle = obstacles.some(obs => obs.x === headX && obs.y === headY);
+
+      if (hitWall || hitSelf || hitObstacle) {
         clearInterval(game);
-        alert("💀 Game Over! Your score: " + score);
+        alert("💥 Game Over! Your score: " + score);
         return;
       }
 
@@ -83,15 +98,21 @@
       // Ăn thức ăn
       if (headX === food.x && headY === food.y) {
         score++;
-        food = {
-          x: Math.floor(Math.random() * 20) * box,
-          y: Math.floor(Math.random() * 20) * box
-        };
+        // Đảm bảo thức ăn không sinh ra trong chướng ngại vật
+        do {
+          food = {
+            x: Math.floor(Math.random() * 20) * box,
+            y: Math.floor(Math.random() * 20) * box
+          };
+        } while (
+          snake.some(part => part.x === food.x && part.y === food.y) ||
+          obstacles.some(obs => obs.x === food.x && obs.y === food.y)
+        );
       } else {
         snake.pop();
       }
 
-      // Hiển thị điểm
+      // Vẽ điểm
       ctx.fillStyle = "white";
       ctx.font = "16px Arial";
       ctx.fillText("Score: " + score, 10, 20);
