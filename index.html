@@ -1,29 +1,12 @@
-<div class="heart"></div>
-
-<style>
-.heart {
-  width: 100px;
-  height: 90px;
-  background: red;
-  position: relative;
-  transform: rotate(-45deg);
-  margin: 100px;
-}
-.heart::before,
-.heart::after {
-  content: "";
-  width: 100px;
-  height: 90px;
-  background: red;
-  border-radius: 50%;
-  position: absolute;
-}
-.heart::before {
-  top: -50px;
-  left: 0;
-}
-.heart::after {
-  left: 50px;
-  top: 0;
-}
-</style>
+// Hiệu ứng trái tim khi click (popular Valentine demo)
+(function() {
+  const hearts = [];
+  document.onclick = function(e) {
+    const d = document.createElement("div");
+    d.className = "heart";
+    d.style.left = `${e.clientX}px`;
+    d.style.top = `${e.clientY}px`;
+    document.body.appendChild(d);
+    hearts.push(d);
+  };
+})();
