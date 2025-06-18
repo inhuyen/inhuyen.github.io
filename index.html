@@ -1,12 +1,13 @@
-// Hiệu ứng trái tim khi click (popular Valentine demo)
-(function() {
-  const hearts = [];
-  document.onclick = function(e) {
-    const d = document.createElement("div");
-    d.className = "heart";
-    d.style.left = `${e.clientX}px`;
-    d.style.top = `${e.clientY}px`;
-    document.body.appendChild(d);
-    hearts.push(d);
-  };
-})();
+import turtle
+
+pen = turtle.Turtle()
+pen.fillcolor('red')
+pen.begin_fill()
+pen.left(140)
+pen.forward(180)
+pen.circle(-90, 200)
+pen.left(120)
+pen.circle(-90, 200)
+pen.forward(180)
+pen.end_fill()
+turtle.done()
